@@ -1,0 +1,1 @@
+enum SignInType { GOOGLE, FACEBOOK, EMAIL_PASSWORD }

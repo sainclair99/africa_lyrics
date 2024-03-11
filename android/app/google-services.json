@@ -1,0 +1,41 @@
+{
+  "project_info": {
+    "project_number": "225914981395",
+    "firebase_url": "https://afrikalyrics-14540.firebaseio.com",
+    "project_id": "afrikalyrics-14540",
+    "storage_bucket": "afrikalyrics-14540.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:225914981395:android:8701b2280353aa8b",
+        "android_client_info": {
+          "package_name": "com.wetellafrica.afrikalyrics"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "225914981395-tnii0surr7nvo1v0vmus93ldmitgtqn2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmLmMbKdRDmYsdeuh45fsV8cQdn1HNdC4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "225914981395-7gpkf84gopbbb4u6ur7flp3uueb6vftj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-6363498397013332~2795141428"
+    }
+  ],
+  "configuration_version": "1"
+}
