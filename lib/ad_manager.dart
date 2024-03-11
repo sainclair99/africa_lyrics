@@ -12,15 +12,24 @@ import 'misc/screen_utils.dart';
 import 'widgets/app_cached_image.dart';
 
 class AdManager {
-  static late AdManager _instance;
+
+  static final AdManager _instance = AdManager._init();
+
   static AdManager get instance => _instance;
-  static void init() => _instance ??= AdManager._init();
+
+  factory AdManager() => _instance;
+
   late ALApi _alApi;
   static late List<AdvertModel> adverts;
   static Map<String, List<AdvertModel>> advertsMap = new Map();
 
   late InterstitialAd? _interstitialAd;
+
+  BannerAd? bannerAd;
+  bool isBannerAdReady = false;
+
   AdManager._init() {
+
     InterstitialAd.load(
       adUnitId: AdManager.interstitialAdUnitId,
       request: const AdRequest(),
@@ -35,8 +44,10 @@ class AdManager {
         },
       ),
     );
+
+    createBottomBannerAd();
+
   }
-  factory AdManager() => _instance;
 
   disposeInterstitialAd() {
     _interstitialAd?.dispose();
@@ -44,6 +55,41 @@ class AdManager {
 
   showInstertialAd() {
     _interstitialAd?.show();
+  }
+
+  createBottomBannerAd() {
+    try {
+      bannerAd = BannerAd(
+        size: AdSize.banner,
+        request: const AdRequest(),
+        adUnitId: AdManager.bannerAdUnitId,
+        listener: BannerAdListener(
+          onAdLoaded: (ad) {
+            print('Admob banner loaded!');
+          },
+          onAdOpened: (ad) {
+            print('Admob banner opened!');
+          },
+          onAdClosed: (ad) {
+            print('Admob banner closed!');
+          },
+          onAdFailedToLoad: (ad, error) {
+            print('Admob banner failed to load. Error code: ${error.code}');
+          },
+          onAdClicked: (ad) {
+            print('Admob banner clicked!');
+          },
+          onAdWillDismissScreen: (ad) {
+            print('Admob banner left application!');
+          },
+        ),
+      );
+
+      bannerAd!.load();
+    }
+    catch (e){
+      bannerAd = null;
+    }
   }
 
   showBannerAds(BuildContext context, {int? slot}) {
@@ -76,40 +122,26 @@ class AdManager {
         ),
       );
     }
-    return Container(
-      height: 60,
-      child: AdWidget(
-        ad: BannerAd(
-          size: AdSize(
-            width: ScreenUtils.getScreenWidth(context).toInt(),
-            height: 60,
-          ),
-          request: const AdRequest(),
-          adUnitId: AdManager.bannerAdUnitId,
-          listener: BannerAdListener(
-            onAdLoaded: (ad) {
-              print('Admob banner loaded!');
-            },
-            onAdOpened: (ad) {
-              print('Admob banner opened!');
-            },
-            onAdClosed: (ad) {
-              print('Admob banner closed!');
-            },
-            onAdFailedToLoad: (ad, error) {
-              print('Admob banner failed to load. Error code: ${error.code}');
-            },
-            onAdClicked: (ad) {
-              print('Admob banner clicked!');
-            },
-            onAdWillDismissScreen: (ad) {
-              print('Admob banner left application!');
-            },
-          ),
+
+    if(bannerAd !=null && isBannerAdReady){
+      return Container(
+        height: 60,
+        child: AdWidget(
+          ad: bannerAd!,
         ),
-      ),
-    );
+      );
+    }else{
+      return Container();
+    }
+
   }
+
+  @override
+  // void dispose() {
+  //   bannerAd!.dispose();
+  //   isBannerAdReady = false;
+  //   super.dispose();
+  // }
 
   static String get appId {
     if (Platform.isAndroid) {

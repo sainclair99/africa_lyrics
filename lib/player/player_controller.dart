@@ -10,6 +10,7 @@ import 'package:afrikalyrics_mobile/player/services/local_artists_service.dart';
 import 'package:afrikalyrics_mobile/services/lyrics_service.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:on_audio_query/on_audio_query.dart';
@@ -33,44 +34,67 @@ class PlayerController extends GetxController {
   RxBool isShuffle = RxBool(false);
   static PlayerController get to => Get.find();
   final assetsAudioPlayer = AssetsAudioPlayer();
-  late LyricsService _lyricsService;
+  LyricsService? _lyricsService;
+
+  // Main method.
+  final OnAudioQuery _audioQuery = OnAudioQuery();
+
+  // Indicate if application has permission to the library.
+  bool _hasPermission = false;
 
   @override
   void onInit() {
     super.onInit();
-    isPlaying.bindStream(assetsAudioPlayer.isPlaying);
-    isShuffle.bindStream(assetsAudioPlayer.isShuffling);
-    currentPosition.bindStream(assetsAudioPlayer.currentPosition);
-    currentLoopMode.bindStream(assetsAudioPlayer.loopMode);
-    assetsAudioPlayer.current.listen((event) {
-      if (event != null && playList.value != null) {
-        print(event);
-        playing.value = playList.value
-            .where((song) => event.audio.assetAudioPath == song.uri)
-            .toList()
-            .first;
-      }
-    });
 
-    playing.stream.listen((value) {
-      print(value);
-      if (value?.songTitle != null) {
-        isCurrentLrcReady.value = false;
-        isCurrentHasLrc.value = false;
-        currentLrcString.value = "";
+    init();
+  }
 
-        this.fetchCurrrentSongLrc(
-          artist: value.artistName,
-          title: value.songTitle,
-        );
-      }
-    });
+  init({bool retry = false}) async {
 
-    loadAllSongs();
-    loadAllArtists();
-    loadAllAlbums();
+    // Check and request for permission.
+    // The param 'retryRequest' is false, by default.
+    _hasPermission = await _audioQuery.checkAndRequest(
+      retryRequest: retry,
+    );
 
-    _lyricsService = locator.get<LyricsService>();
+    // Only call update the UI if application has all required permissions.
+    // _hasPermission ? setState(() {}) : null;
+
+    if(_hasPermission){
+      isPlaying.bindStream(assetsAudioPlayer.isPlaying);
+      isShuffle.bindStream(assetsAudioPlayer.isShuffling);
+      currentPosition.bindStream(assetsAudioPlayer.currentPosition);
+      currentLoopMode.bindStream(assetsAudioPlayer.loopMode);
+      assetsAudioPlayer.current.listen((event) {
+        if (event != null && playList.value != null) {
+          print(event);
+          playing.value = playList.value
+              .where((song) => event.audio.assetAudioPath == song.uri)
+              .toList()
+              .first;
+        }
+      });
+
+      playing.stream.listen((value) {
+        print(value);
+        if (value?.songTitle != null) {
+          isCurrentLrcReady.value = false;
+          isCurrentHasLrc.value = false;
+          currentLrcString.value = "";
+
+          this.fetchCurrrentSongLrc(
+            artist: value.artistName,
+            title: value.songTitle,
+          );
+        }
+      });
+
+      loadAllSongs();
+      loadAllArtists();
+      loadAllAlbums();
+
+      _lyricsService = locator.get<LyricsService>();
+    }
   }
 
   loadArtistSongs(LocalArtist artist) async {
@@ -91,7 +115,7 @@ class PlayerController extends GetxController {
   Future<List<LocalSong>> getArtWorks(List<LocalSong> results) async {
     try {
       for (var i = 0; i < results.length; i++) {
-        results[i].cover = await OnAudioQuery().queryArtwork(
+        results[i].cover = await _audioQuery.queryArtwork(
           int.parse('${results[i].songId}'),
           ArtworkType.AUDIO,
         );
@@ -152,7 +176,7 @@ class PlayerController extends GetxController {
       try {
         for (var i = 0; i < results.length; i++) {
           try {
-            results[i].cover = await OnAudioQuery().queryArtwork(
+            results[i].cover = await _audioQuery.queryArtwork(
               int.parse('${results[i].artistId}'),
               ArtworkType.ARTIST,
             );
@@ -173,7 +197,7 @@ class PlayerController extends GetxController {
       albums.value = results;
       try {
         for (var i = 0; i < results.length; i++) {
-          results[i].cover = await OnAudioQuery().queryArtwork(
+          results[i].cover = await _audioQuery.queryArtwork(
             int.parse('${results[i].albumId}'),
             ArtworkType.ALBUM,
           );
@@ -297,16 +321,19 @@ class PlayerController extends GetxController {
           localPath: localCorrespondance.localPath,
         );
       } else {
-        List<LrcModel> results = await _lyricsService.searchLrc(
-          artist: artist,
-          title: title,
-        );
-        print(results);
-        if (results.length == 1) {
-          this.setCurrentLrc(lrc: results.first);
-        } else {
-          isCurrentLrcReady.value = true;
+        if(_lyricsService != null){
+          List<LrcModel> results = await _lyricsService!.searchLrc(
+            artist: artist,
+            title: title,
+          );
+          print(results);
+          if (results.length == 1) {
+            this.setCurrentLrc(lrc: results.first);
+          } else {
+            isCurrentLrcReady.value = true;
+          }
         }
+
       }
     } catch (e) {
       print(e);
@@ -361,7 +388,7 @@ class PlayerController extends GetxController {
   fetchFile(String fileName, {bool local = false}) {
     if (local) {
     } else {
-      return _lyricsService.getFile(fileName);
+      return _lyricsService?.getFile(fileName);
     }
   }
 }

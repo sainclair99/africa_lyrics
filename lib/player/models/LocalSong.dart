@@ -1,14 +1,13 @@
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class LocalSong {
-  final String? songId;
+  final int? songId;
   final String? songTitle;
   final String? artistName;
   final String? albumTitle;
   final String? uri;
-  final String? duration;
+  final int? duration;
   final String? filePath;
   Uint8List? cover;
   String? coverUrl;
@@ -32,12 +31,12 @@ class LocalSong {
 
   factory LocalSong.fromAudioQuery(SongModel song) {
     return LocalSong(
-      songId: song.id as String,
+      songId: song.id,
       uri: song.uri,
       songTitle: song.title,
       albumTitle: song.album ?? "",
       artistName: song.artist ?? '',
-      duration: song.duration as String,
+      duration: song.duration,
       // filePath: song.filePath,
       // coverUrl: song.albumArtwork,
     );

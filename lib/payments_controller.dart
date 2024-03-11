@@ -8,11 +8,10 @@ class PaymentsController extends GetxController {
   late StreamSubscription<List<PurchaseDetails>>
       _subscription; // ! added 'late' tag
 
-  // ! from {InAppPurchaseConnection, purchaseUpdatedStream} to {InAppPurchase, purchaseStream}
+  // ! from {InAppPurchase, purchaseUpdatedStream} to {InAppPurchase, purchaseStream}
   @override
   void onInit() {
-    final Stream<List<PurchaseDetails>> purchaseUpdated = InAppPurchaseConnection
-        .instance.purchaseUpdatedStream; // ! from {Stream} to {Stream<List<PurchaseDetails>>}
+    final Stream<List<PurchaseDetails>> purchaseUpdated = InAppPurchase.instance.purchaseStream; // ! from {Stream} to {Stream<List<PurchaseDetails>>}
     _subscription = purchaseUpdated.listen((purchaseDetailsList) {
       _listenToPurchaseUpdated(purchaseDetailsList);
     }, onDone: () {
@@ -25,11 +24,11 @@ class PaymentsController extends GetxController {
   }
 
   loadProductsForSale() async {
-    final bool available = await InAppPurchaseConnection.instance.isAvailable();
+    final bool available = await InAppPurchase.instance.isAvailable();
     print(available);
     const Set<String> _kIds = <String>{'premium_1'};
     final ProductDetailsResponse response =
-        await InAppPurchaseConnection.instance.queryProductDetails(_kIds);
+        await InAppPurchase.instance.queryProductDetails(_kIds);
     if (response.notFoundIDs.isNotEmpty) {
       // Handle the error.
     }
@@ -55,7 +54,7 @@ class PaymentsController extends GetxController {
       //     }
       //   }
       //   if (purchaseDetails.pendingCompletePurchase) {
-      //     await InAppPurchaseConnection.instance
+      //     await InAppPurchase.instance
       //         .completePurchase(purchaseDetails);
       //   }
       // }

@@ -40,6 +40,8 @@ import 'auth/auth_controller.dart';
 import 'package:path_provider/path_provider.dart' as pathProvider;
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 
+import 'firebase_options.dart';
+
 // ! added interpolations and null safety behaviors
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
@@ -59,8 +61,13 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform
+    ).then((value) {
+      FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+    });
+
     Isolate.current.addErrorListener(RawReceivePort((pair) async {
       final List<dynamic> errorAndStacktrace = pair;
       await FirebaseCrashlytics.instance.recordError(
@@ -86,10 +93,9 @@ void main() async {
     await Hive.openBox<String>("suggestions");
 
     await setupLocator();
-    // Addmod Inititialization
-    // ! Admob.initialize();
+    // MobileAds Inititialization
     MobileAds.instance.initialize();
-    AdManager.init();
+    // AdManager.init();
     // ! InAppPurchaseConnection.enablePendingPurchases();
     // ! if (Platform.isIOS) {
     //   await Admob.requestTrackingAuthorization();
@@ -186,7 +192,7 @@ Future<void> _showNotification(
     android: androidPlatformChannelSpecifics,
   );
 
-  FlutterRingtonePlayer.playNotification();
+  FlutterRingtonePlayer().playNotification();
 
   await flutterLocalNotificationsPlugin.show(
     14,
@@ -215,24 +221,25 @@ initNotifications() async {
 
   /// Note: permissions aren't requested here just to demonstrate that can be
   /// done later
-  // ! final IOSInitializationSettings initializationSettingsIOS =
-  //     IOSInitializationSettings(
-  //         requestAlertPermission: true,
-  //         requestBadgePermission: true,
-  //         requestSoundPermission: true,
-  //         onDidReceiveLocalNotification:
-  //             (int? id, String? title, String? body, String? payload) async {});
+  final DarwinInitializationSettings initializationSettingsDarwin =
+  DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+      onDidReceiveLocalNotification: (int? id, String? title, String? body, String? payload) async {});
+
   final InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
-    // ! iOS: initializationSettingsIOS,
+    iOS: initializationSettingsDarwin,
   );
+
   await flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
-    // ! onSelectNotification: (String? payload) async {
-    //   if (payload != null) {
-    //     debugPrint('notification payload: $payload');
-    //   }
-    // },
+    onDidReceiveBackgroundNotificationResponse: (NotificationResponse notificationResponse) async {
+      if (notificationResponse.payload != null) {
+        debugPrint('notification payload: ${notificationResponse.payload}');
+      }
+    },
   );
 }
 

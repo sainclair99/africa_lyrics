@@ -10,28 +10,18 @@ class RefreshTokenInterceptor extends QueuedInterceptor {
     DioError error,
     ErrorInterceptorHandler handler,
   ) async {
-    if (error.response?.statusCode == 403 ||
-        error.response?.statusCode == 401) {
+    if (error.response?.statusCode == 403 || error.response?.statusCode == 401) {
       try {
-        dio.lock();
-        dio.interceptors.errorLock.lock();
-        dio.interceptors.requestLock.lock();
-        dio.interceptors.responseLock.lock();
+        // Locks are no longer needed in Dio 5.0
         RequestOptions options = error.response!.requestOptions;
         var token = await tokenFuture();
-        options.headers["Authorization"] = "Bearer " + token;
-        dio.unlock();
-        dio.interceptors.errorLock.unlock();
-        dio.interceptors.requestLock.unlock();
-        dio.interceptors.responseLock.unlock();
-        dio.request(options.path, options: options as Options);
+        options.headers["Authorization"] = "Bearer $token";
+
+        final response = await dio.fetch(options);
+        return handler.resolve(response); // Pass successful response back
       } catch (e) {
         print(e);
-        dio.unlock();
-        dio.interceptors.errorLock.unlock();
-        dio.interceptors.requestLock.unlock();
-        dio.interceptors.responseLock.unlock();
-        handler.next(error);
+        return handler.next(error); // Pass error to next interceptor
       }
     } else {
       handler.next(error);

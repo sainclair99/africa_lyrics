@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 class TokenManager {
   String clientId = "5"; //Mobile app
   String clientSecret = "RpMvsz4BCbxrkYD2S6hO2SZVQXhV6e11OYzJDg3M";
-  late String _token;
+  String _token = '';
   bool _isLoading = false;
   String get token => _token;
 
@@ -14,6 +14,7 @@ class TokenManager {
     return _singleton;
   }
   TokenManager._internal();
+
   Future<String> getToken({refresh = false, username, password}) async {
     Completer _tokenCompleter = Completer<String>();
     if (_token != null && refresh == false) {

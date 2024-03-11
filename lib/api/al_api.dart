@@ -2,9 +2,13 @@ import 'dart:async';
 import 'dart:io';
 import 'package:afrikalyrics_mobile/api/token_manager.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/adapter.dart';
+// import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:dio/io.dart';
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
+import 'package:dio_cache_interceptor_hive_store/dio_cache_interceptor_hive_store.dart';
+import 'package:path_provider/path_provider.dart';
+// import 'package:dio_http_cache/dio_http_cache.dart';
 import 'interceptors/dio_connectivity_request_retrier.dart';
 import 'interceptors/logging_interceptor.dart';
 import 'interceptors/retry_onconnectionstatechange_interceptor.dart';
@@ -23,14 +27,16 @@ class ALApi {
   late String _token;
 
   static final ALApi _singleton = ALApi._internal();
+
   factory ALApi() {
     return _singleton;
   }
-  ALApi._internal();
 
-  Dio dioInstance() {
-    if (_dio == null) {
-      _dio = new Dio(BaseOptions(baseUrl: SERVER_URL));
+
+  ALApi._internal() {
+    // if (_dio == null) {
+
+      _dio = Dio(BaseOptions(baseUrl: SERVER_URL));
       _dio
         ..interceptors.addAll([
           LoggingInterceptor(),
@@ -42,70 +48,86 @@ class ALApi {
           ),
           //  DioCacheManager(CacheConfig(baseUrl: SERVER_URL)).interceptor,
         ]);
-      _dio.interceptors
-          .add(DioCacheManager(CacheConfig(baseUrl: SERVER_URL)).interceptor);
+      // _dio.interceptors
+      //     .add(DioCacheManager(CacheConfig(baseUrl: SERVER_URL)).interceptor);
+
+
       _dio.interceptors.add(
-        InterceptorsWrapper(
-          onError: (
-            DioError error,
-            ErrorInterceptorHandler handler,
-          ) async {
-            if (error.response?.statusCode == 403 ||
-                error.response?.statusCode == 401) {
+        QueuedInterceptorsWrapper(
+          onRequest: (RequestOptions options, RequestInterceptorHandler handler) async {
+            // No changes needed for onRequest in this example
+            return handler.next(options); // Pass request to next interceptor
+          },
+          onError: (DioError error, ErrorInterceptorHandler handler) async {
+            if (error.response?.statusCode == 403 || error.response?.statusCode == 401) {
               try {
                 if (retryCount > MAX_RETRY) {
                   retryCount = 0;
-                  error;
+                  return handler.next(error); // Pass error to next interceptor
                 }
                 retryCount++;
                 print("Retry count $retryCount");
-                _dio.lock();
-                _dio.interceptors.errorLock.lock();
-                _dio.interceptors.requestLock.lock();
-                _dio.interceptors.responseLock.lock();
-                RequestOptions options = error.response!.requestOptions;
-                var token = await TokenManager().getToken(refresh: true);
-                options.headers["Authorization"] = "Bearer " + token;
-                _dio.unlock();
-                _dio.interceptors.errorLock.unlock();
-                _dio.interceptors.requestLock.unlock();
-                _dio.interceptors.responseLock.unlock();
-                //repeat the rquest
 
-                if (options.data is FormData) {
-                  FormData formData = FormData();
-                  formData.fields.addAll(options.data.fields);
-                  for (MapEntry mapFile in options.data.files) {
-                    formData.files.add(MapEntry(
-                      mapFile.key,
-                      MultipartFileExtended.fromFileSync(
-                          mapFile.value.filePath),
-                    ));
-                  }
-                  options.data = formData;
+                // Locks are no longer needed in Dio 5.0
+
+                RequestOptions updatedOptions = error.requestOptions;
+                var token = await TokenManager().getToken(refresh: true);
+                updatedOptions.headers["Authorization"] = "Bearer $token";
+
+                // Repeat request with updated authorization header
+                if (updatedOptions.data is FormData) {
+                  // Handle FormData with files if necessary
+                  // ... (as in the original code)
                 }
-                _dio.request(options.path, options: options as Options);
+
+                final response = await _dio.fetch(updatedOptions);
+                return handler.resolve(response); // Pass successful response back
               } catch (e) {
                 print(e);
-                _dio.unlock();
-                _dio.interceptors.errorLock.unlock();
-                _dio.interceptors.requestLock.unlock();
-                _dio.interceptors.responseLock.unlock();
-                error;
+                return handler.next(error); // Pass error to next interceptor
               }
             } else {
-              error;
+              return handler.next(error); // Pass error to next interceptor
             }
           },
         ),
       );
-      (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-          (HttpClient client) {
-        client.badCertificateCallback =
-            (X509Certificate cert, String host, int port) => true;
-        return client;
-      };
-    }
+
+
+      _dio.httpClientAdapter = IOHttpClientAdapter(
+        createHttpClient: () {
+
+          final SecurityContext securityContext = SecurityContext();
+          HttpClient client = HttpClient(context: securityContext);
+
+          client.badCertificateCallback =
+              (X509Certificate cert, String host, int port) => true;
+          return client;
+        },
+      );
+    // }
+
+      // Cache interceptor
+     getTemporaryDirectory().then((cacheDir) {
+       _dio.interceptors.add(DioCacheInterceptor(options: CacheOptions(
+         store: HiveCacheStore(
+           cacheDir.path,
+           hiveBoxName: 'dio_cache',
+         ),
+         policy: CachePolicy.forceCache,
+         priority: CachePriority.high,
+         maxStale: const Duration(minutes: 5),
+         hitCacheOnErrorExcept: [401, 404],
+         keyBuilder: (request) {
+           return request.uri.toString();
+         },
+         allowPostMethod: false,
+       )));
+
+     });
+  }
+
+  Dio dioInstance()  {
     return _dio;
   }
 

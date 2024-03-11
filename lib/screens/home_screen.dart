@@ -243,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         var countries = controller.allCountries.value;
                         return ListView.builder(
                           physics: BouncingScrollPhysics(),
-                          itemCount: 9,
+                          itemCount: min(countries.length, 9),
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context, index) {
                             return CountryCard(
@@ -422,7 +422,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         double lineNumber = 3;
                         return Column(
                           children: [
-                            for (var i = 0; i < lineNumber; i++)
+                            for (var i = 0; i < min(lineNumber, genres.length); i++)
                               Row(
                                 children: [
                                   Expanded(
