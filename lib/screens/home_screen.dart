@@ -129,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   items: lyrics
                       .map((item) => GestureDetector(
                             onTap: () {
-                              Get.to(LyricDetails(lyric: item));
+                              Get.to(() => LyricDetails(lyric: item));
                             },
                             child: Container(
                               margin: EdgeInsets.all(5.0),
@@ -220,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Get.to(AllCountries());
+                            Get.to(() => AllCountries());
                           },
                           child: Text(
                             "View More",
@@ -279,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         GestureDetector(
                           onTap: () {
                             if (controller.topLyrics.value != null)
-                              Get.to(LyricsList(
+                              Get.to(() => LyricsList(
                                 lyrics: controller.topLyrics.value,
                               ));
                           },
@@ -342,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Get.to(AllArtists());
+                            Get.to(() => AllArtists());
                           },
                           child: Text(
                             "View More",
@@ -399,7 +399,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Get.to(AllGenres());
+                            Get.to(() => AllGenres());
                           },
                           child: Text(
                             "View More",

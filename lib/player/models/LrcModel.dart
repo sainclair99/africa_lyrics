@@ -199,7 +199,7 @@ class User {
   String? email;
   int? valide;
   DateTime? dateInscription;
-  dynamic? emailVerifiedAt;
+  dynamic emailVerifiedAt;
   DateTime? updatedAt;
   DateTime? dateModification;
 
@@ -210,7 +210,7 @@ class User {
     String? email,
     int? valide,
     DateTime? dateInscription,
-    dynamic? emailVerifiedAt,
+    dynamic emailVerifiedAt,
     DateTime? updatedAt,
     DateTime? dateModification,
   }) =>

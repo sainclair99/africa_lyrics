@@ -4,7 +4,7 @@ import 'package:on_audio_query/on_audio_query.dart';
 
 class LocalArtist {
   final String? name;
-  final String? artistId;
+  final int? artistId;
   Uint8List? cover;
   final String? coverUrl;
   final int? songCount;
@@ -18,7 +18,7 @@ class LocalArtist {
 
   factory LocalArtist.fromAudioQuery(ArtistModel artist) {
     return LocalArtist(
-      artistId: artist.id as String,
+      artistId: artist.id,
       name: artist.artist,
       songCount: artist.numberOfTracks ?? 0,
       // coverUrl: artist.artistArtPath,

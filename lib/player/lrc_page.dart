@@ -38,11 +38,11 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
       "[00:00.680]照亮明天的阳光\n[00:03.570]从窗外洒进来…敞开门扉\n[00:20.920]停下!因为你让我感觉到\n[00:22.360]自己有点过快\n[00:23.520]走吧!也许脱离了节奏\n[00:25.100]但我绝不放开你\n[00:26.280]知道吗!我希望你能亲自看看\n[00:28.560]不是这样不是这样快停下听好!糟了!\n[00:30.930]我从来没想过我会接受这一切\n[00:33.420]现在我知道我没办法降低速度\n[00:35.970]你知道这是不断地和不时地\n[00:38.210]于是谁也无法逃脱\n[00:40.300]我的梦想究竟落在何方?\n[00:45.100]为何形影不见\n[00:50.200]奋力追赶着应当守护的事物\n[00:54.860]阳光至始至终都在我心底里\n[01:02.400]照亮明天的阳光无限延伸\n[01:07.340]向着展现眼前的光明前路\n[01:12.870]Sunshine未来的阳光\n[01:15.420]Sunshine耀眼的阳光\n[01:18.100]你知道难以达成只是想去尝试一番\n[01:19.670]相信吧\n[01:21.289]明天也会放晴吗?\n[01:32.960]常因些微不足道的事情踌躇不前\n[01:37.830]总是很在意某人说过的话\n[01:42.850]如此脆弱的我亦坚信「早日必定成功!」\n[01:47.800]这是逞强还是不服输?\n[01:51.940]我的梦想实为何物\n[01:56.720]竟忘了如此重要的事\n[02:01.680]应当守护的事物就在眼前\n[02:06.640]阳光至始至终都在我心底里\n[02:14.500]照亮明天的阳光无限延伸\n[02:19.000]向着展现眼前的光明前路\n[02:24.670]未来的阳光\n[02:27.200]耀眼的阳光\n[02:29.900]你知道难以达成只是想去尝试一番\n[02:31.420]相信吧\n[02:33.300]明天也会放晴吗?\n[02:47.200]此刻雨水纷飞\n[03:05.650]我推测我所等待的就是这缕阳光\n[03:09.200]为什么它只在我心中闪烁\n[03:15.960]我推测我所等待的就是这缕阳光\n[03:19.110]为什么它只在我心中闪烁\n[03:25.970]照亮明天的阳光无限延伸\n[03:30.690]向着展现眼前的光明前路\n[03:36.400]未来的阳光\n[03:38.840]耀眼的阳光\n[03:41.520]你知道难以达成只是想去尝试一番\n[03:43.200]相信吧\n[03:44.829]明天也会放晴吗?";
   //是否显示选择器
   bool showSelect = false;
-  Duration start = new Duration(seconds: 0);
+  Duration start = const Duration(seconds: 0);
   //歌词控制器
   late LyricController controller;
   late PlayerController player;
-  late PlatformFile localFile;
+  PlatformFile? localFile;
   late TextEditingController _artistNameController;
   late TextEditingController _titleController;
   late List<LrcModel> suggestions;
@@ -78,7 +78,7 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    controller?.dispose();
+    controller.dispose();
     AdManager.instance.disposeInterstitialAd();
     super.dispose();
   }
@@ -107,13 +107,13 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
               )
             : Image.asset("assets/images/Logo3.png"),
         centerTitle: true,
-        actions: [],
+        actions: const [],
       ),
       body: SafeArea(
         child: Container(
           width: context.width,
           height: context.height,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage(
                 "assets/images/background_lyrics.jpeg",
@@ -122,19 +122,19 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
             ),
           ),
           child: Obx(() {
-            if (player.isCurrentLrcReady.value == false) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ),
-                  if (player.playing.value != null) BottomCurrentSong(),
-                ],
-              );
-            }
+            // if (player.isCurrentLrcReady.value == false) {
+            //   return Column(
+            //     mainAxisSize: MainAxisSize.min,
+            //     children: [
+            //       const Expanded(
+            //         child: Center(
+            //           child: CircularProgressIndicator(),
+            //         ),
+            //       ),
+            //       if (player.playing.value != null) BottomCurrentSong(),
+            //     ],
+            //   );
+            // }
             if (player.isCurrentHasLrc.value == false) {
               return Center(
                 child: Column(
@@ -147,8 +147,8 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          "${localFile.name}",
-                          style: TextStyle(
+                          "${localFile?.name}",
+                          style: const TextStyle(
                             color: Colors.white,
                           ),
                         ),
@@ -157,19 +157,19 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
                         onTap: () {
                           var success = player.setCurrentLrc(
                             local: true,
-                            localPath: localFile.path!,
+                            localPath: localFile?.path,
                           );
                           if (success == true) {
                             player.addLocalLrc(
                               localSongId: '${player.playing.value.songId}',
-                              localPath: localFile.path!,
+                              localPath: "${localFile?.path}",
                             );
                           }
                         },
                         child: Container(
                           color: AppColors.primary,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 8),
                             child: Text(
                               'OK',
@@ -233,7 +233,7 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
                               print("进度:${controller.draggingProgress}");
                               player.seekTo(controller.draggingProgress!);
                             },
-                            child: Row(
+                            child: const Row(
                               children: <Widget>[
                                 Icon(
                                   Icons.play_circle_outline,
@@ -268,21 +268,21 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
         child: Column(
           children: [
             if (_isSearching)
-              Center(
+              const Center(
                 child: CircularProgressIndicator(),
               ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
                 "Search results for: '${_artistNameController.text}${_titleController.text.isNotEmpty ? " - " + _titleController.text : ''}'",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 22,
                 ),
               ),
             ),
             Expanded(
               child: ListView.separated(
-                  separatorBuilder: (context, index) => Divider(
+                  separatorBuilder: (context, index) => const Divider(
                         color: Colors.grey,
                         height: 2,
                       ),
@@ -299,13 +299,13 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
                       child: ListTile(
                         title: Text(
                           "${item.artistName}",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 20,
                           ),
                         ),
                         subtitle: Text(
                           "${item.title}",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                           ),
                         ),
@@ -313,7 +313,7 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
                           onTap: () {
                             player.setCurrentLrc(lrc: item);
                           },
-                          child: Icon(
+                          child: const Icon(
                             Icons.play_circle_fill,
                             color: Colors.white,
                             size: 50,
@@ -342,8 +342,8 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(child: _buildSuggestions()),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
                 child: Text(
                   'Lyrics not Found, please try to search manually',
                   style: TextStyle(
@@ -356,14 +356,14 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
               TextField(
                 controller: _titleController,
                 style: Theme.of(context).textTheme.headline5,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: "Enter Song Title",
                 ),
               ),
               TextField(
                 controller: _artistNameController,
                 style: Theme.of(context).textTheme.headline5,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: "Enter Artist Name",
                 ),
               ),
@@ -376,12 +376,13 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
                       setState(() {
                         _isSearching = true;
                       });
+                      print('');
                       List<LrcModel> results =
                           await locator.get<LyricsService>().searchLrc(
                                 artist: _artistNameController.text,
                                 title: _titleController.text,
                               );
-
+                      print(results);
                       setState(() {
                         suggestions = results;
                         _isSearching = false;
@@ -398,8 +399,8 @@ class _LrcPageState extends State<LrcPage> with TickerProviderStateMixin {
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
+                    child: const Padding(
+                      padding: EdgeInsets.symmetric(
                         vertical: 10.0,
                         horizontal: 20,
                       ),

@@ -16,7 +16,7 @@ class AdvertModel {
   int? id;
   String? title;
   String? description;
-  dynamic? url;
+  dynamic url;
   String? format;
   String? imageUrl;
   int? spaceId;
@@ -50,7 +50,7 @@ class AdvertModel {
       );
 
   factory AdvertModel.fromJson(Map<String, dynamic> json) => AdvertModel(
-        id: json["id"] == null ? null : json["id"],
+        id: json["id"],
         title: json["title"] == null ? null : json["title"],
         description: json["description"] == null ? null : json["description"],
         url: json["url"],

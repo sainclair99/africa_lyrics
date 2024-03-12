@@ -14,10 +14,12 @@ import 'package:line_icons/line_icons.dart';
 import 'package:marquee_widget/marquee_widget.dart';
 
 class PlayingScreen extends GetView<PlayerController> {
+  const PlayingScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     WidgetsFlutterBinding.ensureInitialized();
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
 
@@ -25,12 +27,12 @@ class PlayingScreen extends GetView<PlayerController> {
       var playing = PlayerController.to.playing.value;
       return Container(
         height: ScreenUtils.getScreenHeight(context),
-        padding: EdgeInsets.only(
+        padding: const EdgeInsets.only(
           left: 10,
           right: 10,
           top: 40,
         ),
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             colors: [
@@ -49,7 +51,7 @@ class PlayingScreen extends GetView<PlayerController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                         LineIcons.angleDown,
                         color: Colors.white,
                         size: 24,
@@ -59,7 +61,7 @@ class PlayingScreen extends GetView<PlayerController> {
                       }),
                   Column(
                     children: <Widget>[
-                      Text(
+                      const Text(
                         "PLAYING FROM ALBUM",
                         style: TextStyle(
                           letterSpacing: 1,
@@ -69,7 +71,7 @@ class PlayingScreen extends GetView<PlayerController> {
                       ),
                       Text(
                         "${playing.albumTitle}",
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 0.5,
@@ -79,7 +81,7 @@ class PlayingScreen extends GetView<PlayerController> {
                       ),
                     ],
                   ),
-                  Icon(
+                  const Icon(
                     LineIcons.verticalEllipsis,
                     color: Colors.white,
                     size: 24,
@@ -91,6 +93,7 @@ class PlayingScreen extends GetView<PlayerController> {
               ),
               Expanded(
                 child: Container(
+                  width: ScreenUtils.getScreenWidth(context) * .85,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
                     child: playing.coverUrl != null
@@ -101,7 +104,6 @@ class PlayingScreen extends GetView<PlayerController> {
                               )
                             : Image.memory(playing.cover!)),
                   ),
-                  width: ScreenUtils.getScreenWidth(context) * .85,
                 ),
               ),
               SizedBox(
@@ -139,7 +141,7 @@ class PlayingScreen extends GetView<PlayerController> {
                 ),
               ),
               Container(
-                padding: EdgeInsets.only(left: 25, right: 25),
+                padding: const EdgeInsets.only(left: 25, right: 25),
                 width: ScreenUtils.getScreenWidth(context),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -151,7 +153,7 @@ class PlayingScreen extends GetView<PlayerController> {
                           Marquee(
                             child: Text(
                               '${playing.songTitle}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontFamily: "ProximaNova",
                                 fontSize: 22,
@@ -181,7 +183,7 @@ class PlayingScreen extends GetView<PlayerController> {
                 alignment: Alignment.bottomCenter,
                 children: <Widget>[
                   Container(
-                    padding: EdgeInsets.only(left: 5, right: 5),
+                    padding: const EdgeInsets.only(left: 5, right: 5),
                     width: double.infinity,
                     child: SliderTheme(
                       data: SliderTheme.of(context).copyWith(
@@ -190,12 +192,12 @@ class PlayingScreen extends GetView<PlayerController> {
                         activeTickMarkColor: Colors.white,
                         thumbColor: Colors.white,
                         trackHeight: 3,
-                        thumbShape: RoundSliderThumbShape(
+                        thumbShape: const RoundSliderThumbShape(
                           enabledThumbRadius: 4,
                         ),
                       ),
                       child: StreamBuilder<Duration>(
-                          initialData: Duration(seconds: 0),
+                          initialData: const Duration(seconds: 0),
                           stream: controller.currentPosition.stream,
                           builder: (context, snapshot) {
                             return Slider(
@@ -237,7 +239,7 @@ class PlayingScreen extends GetView<PlayerController> {
                 ],
               ),
               Container(
-                padding: EdgeInsets.only(left: 22, right: 22),
+                padding: const EdgeInsets.only(left: 22, right: 22),
                 width: double.infinity,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -253,7 +255,7 @@ class PlayingScreen extends GetView<PlayerController> {
                       onPressed: () => controller.toggleShuffle(),
                     ),
                     IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.skip_previous,
                         color: Colors.white,
                         size: 40,
@@ -266,11 +268,11 @@ class PlayingScreen extends GetView<PlayerController> {
                       iconSize: 70,
                       alignment: Alignment.center,
                       icon: controller.isPlaying.value
-                          ? Icon(
+                          ? const Icon(
                               Icons.pause_circle_filled,
                               color: Colors.white,
                             )
-                          : Icon(
+                          : const Icon(
                               Icons.play_circle_filled,
                               color: Colors.white,
                             ),
@@ -283,7 +285,7 @@ class PlayingScreen extends GetView<PlayerController> {
                       },
                     ),
                     IconButton(
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.skip_next,
                         color: Colors.white,
                         size: 40,
@@ -319,7 +321,7 @@ class PlayingScreen extends GetView<PlayerController> {
                 ),
               ),
               Container(
-                padding: EdgeInsets.only(left: 22, right: 22),
+                padding: const EdgeInsets.only(left: 22, right: 22),
                 width: double.infinity,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -343,7 +345,7 @@ class PlayingScreen extends GetView<PlayerController> {
                       ),
                       onPressed: () {
                         Get.bottomSheet(
-                          CurrentPlaListBottomSheet(),
+                          const CurrentPlaListBottomSheet(),
                         );
                       },
                     ),
@@ -359,6 +361,8 @@ class PlayingScreen extends GetView<PlayerController> {
 }
 
 class CurrentPlaListBottomSheet extends GetView<PlayerController> {
+  const CurrentPlaListBottomSheet({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -374,7 +378,7 @@ class CurrentPlaListBottomSheet extends GetView<PlayerController> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
+                    const Expanded(
                       child: Center(
                         child: Text(
                           "Playlist",
@@ -388,7 +392,7 @@ class CurrentPlaListBottomSheet extends GetView<PlayerController> {
                       ),
                     ),
                     IconButton(
-                        icon: Icon(
+                        icon: const Icon(
                           LineIcons.angleDown,
                           color: AppColors.primary,
                         ),
@@ -403,7 +407,7 @@ class CurrentPlaListBottomSheet extends GetView<PlayerController> {
                       song: songs[index],
                       songs: songs,
                     ),
-                    separatorBuilder: (context, index) => Divider(),
+                    separatorBuilder: (context, index) => const Divider(),
                     itemCount: songs.length,
                   ),
                 ),

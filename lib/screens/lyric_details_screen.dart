@@ -62,8 +62,9 @@ class _LyricDetailsState extends State<LyricDetails> {
 
             if (lyric.youtube != null && lyric.youtube!.isNotEmpty) {
               videoId = YoutubePlayer.convertUrlToId(
-                lyric.youtube!,
-              ) ?? '';
+                    lyric.youtube!,
+                  ) ??
+                  '';
               if (videoId != null) {
                 _controller = YoutubePlayerController(
                   initialVideoId: videoId,
@@ -222,8 +223,8 @@ class _LyricDetailsState extends State<LyricDetails> {
                                                     children: [
                                                       if (lyric.featArtists !=
                                                               null &&
-                                                          lyric.featArtists
-                                                              !.isNotEmpty) ...[
+                                                          lyric.featArtists!
+                                                              .isNotEmpty) ...[
                                                         TextSpan(
                                                           text: " Feat ",
                                                           style: TextStyle(
@@ -237,8 +238,8 @@ class _LyricDetailsState extends State<LyricDetails> {
                                                         for (var i = 0;
                                                             i <
                                                                 lyric
-                                                                    .featArtists
-                                                                    !.length;
+                                                                    .featArtists!
+                                                                    .length;
                                                             i++)
                                                           TextSpan(
                                                               text: lyric
@@ -251,7 +252,7 @@ class _LyricDetailsState extends State<LyricDetails> {
                                                                     ..onTap =
                                                                         () {
                                                                       Get.to(
-                                                                        ArtistDetails(
+                                                                        () => ArtistDetails(
                                                                             artist:
                                                                                 lyric.featArtists![i]),
                                                                       );
@@ -297,7 +298,7 @@ class _LyricDetailsState extends State<LyricDetails> {
                                   GestureDetector(
                                     onTap: () {
                                       Get.to(
-                                          ArtistDetails(artist: lyric.author!));
+                                          () => ArtistDetails(artist: lyric.author!));
                                     },
                                     child: Row(
                                       mainAxisAlignment:
@@ -400,7 +401,7 @@ class _LyricDetailsState extends State<LyricDetails> {
                                         Expanded(
                                           child: GestureDetector(
                                             onTap: () {
-                                              Get.to(LyricsByGenre(
+                                              Get.to(() => LyricsByGenre(
                                                 genre: lyric.genre!,
                                               ));
                                             },
@@ -538,7 +539,7 @@ class _LyricDetailsState extends State<LyricDetails> {
                   _buildContent(),
                   ListTile(
                     onTap: () {
-                      Get.to(ArtistDetails(
+                      Get.to(() => ArtistDetails(
                         artist: lyric.author!,
                       ));
                     },

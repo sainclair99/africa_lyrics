@@ -134,7 +134,7 @@ class LyricsService extends ALService {
   Future<List<CountryModel>> fetchAllCountries({page = 1}) async {
     Response resp = await this._alApi.getRequest("/countries", auth: true);
     List<CountryModel> listData = [];
-    var data = this.parseResponse(resp);
+    var data = parseResponse(resp);
     for (var i = 0; i < data.length; i++) {
       listData.add(CountryModel.fromJson(data[i]));
     }
@@ -142,12 +142,11 @@ class LyricsService extends ALService {
   }
 
   Future<List<LyricModel>> fetchGenreDetails(int genreId, {page = 1}) async {
-    Response resp = await this
-        ._alApi
+    Response resp = await _alApi
         .getRequest("/lyrics/genres/$genreId?page=$page", auth: true);
 
     List<LyricModel> listData = [];
-    var data = this.parseResponse(resp)["data"];
+    var data = parseResponse(resp)["data"];
     print(resp);
     for (var i = 0; i < data.length; i++) {
       listData.add(LyricModel.fromJson(data[i]));
@@ -156,12 +155,24 @@ class LyricsService extends ALService {
   }
 
   Future<List<LrcModel>> searchLrc({String? artist, String? title}) async {
+    print("In search lyrics: ");
     var options = Options();
-    options.headers = {...options.headers!, 'accept': 'application/json'}; // ! added "!" tag
+
+    options.headers = {
+      ...?options.headers,
+      'accept': 'application/json'
+    }; // ! added "!" tag
 
     var token = TokenManager().token;
-    options.headers = {...options.headers!, 'Authorization': 'Bearer $token'}; // ! added "!" tag
-
+    options.headers = {
+      ...?options.headers,
+      'Authorization': 'Bearer $token'
+    }; // ! added "!" tag
+    print(token);
+    // options.headers = {
+    //   'Accept': 'application/json',
+    //   // 'Authorization': 'Bearer $token'
+    // };
     var resp = await Dio().get(
       'https://api.afrikalyrics.com/api/lyric-media',
       queryParameters: {
@@ -170,7 +181,8 @@ class LyricsService extends ALService {
       },
       options: options,
     );
-    var data = this.parseResponse(resp)["data"];
+    print(resp);
+    var data = parseResponse(resp)["data"];
     List<LrcModel> listData = [];
     for (var i = 0; i < data.length; i++) {
       listData.add(LrcModel.fromJson(data[i]));

@@ -3,6 +3,7 @@ import '../models/LocalSong.dart';
 
 class LocalSongsService {
   OnAudioQuery? audioQuery;
+
   LocalSongsService() {
     audioQuery = OnAudioQuery();
   }
@@ -48,7 +49,7 @@ class LocalSongsService {
 
   //   return listData;
   // }
-  Future<List<LocalSong>> getLocalSongsByArtist(String artistId) async {
+  Future<List<LocalSong>> getLocalSongsByArtist(int artistId) async {
     var songs = await audioQuery!.queryAudiosFrom(AudiosFromType.ARTIST_ID,artistId);
     List<LocalSong> listData = [];
     songs = songs.where(isValidMusic).toList();

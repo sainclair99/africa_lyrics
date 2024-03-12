@@ -164,7 +164,7 @@ class ALApi {
       options.headers = {...?options.headers, 'Authorization': 'Bearer $token'};
     }
     return dioInstance().get(
-      '$path',
+      "$path",
       queryParameters: queryParameters,
       options: options,
     );

@@ -10,7 +10,7 @@ import 'package:afrikalyrics_mobile/player/services/local_artists_service.dart';
 import 'package:afrikalyrics_mobile/services/lyrics_service.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter/cupertino.dart';
+// import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:on_audio_query/on_audio_query.dart';
@@ -19,16 +19,16 @@ import '../service_locator.dart';
 import 'services/local_songs_service.dart';
 
 class PlayerController extends GetxController {
-  Rx<LocalSong> playing = Rx<LocalSong>(new LocalSong());
-  Rx<Duration> currentPosition = Rx<Duration>(new Duration());
+  Rx<LocalSong> playing = Rx<LocalSong>(LocalSong());
+  Rx<Duration> currentPosition = Rx<Duration>(const Duration());
   Rx<LoopMode> currentLoopMode = Rx<LoopMode>(LoopMode.none);
   Rx<List<LocalSong>> songs = Rx<List<LocalSong>>([]);
   Rx<List<LocalArtist>> artists = Rx<List<LocalArtist>>([]);
   Rx<List<LocalAlbum>> albums = Rx<List<LocalAlbum>>([]);
   Rx<List<LocalSong>> playList = Rx<List<LocalSong>>([]);
-  Rx<LocalArtist> currentArtist = Rx<LocalArtist>(new LocalArtist());
+  Rx<LocalArtist> currentArtist = Rx<LocalArtist>(LocalArtist());
   Rx<List<LocalSong>> currentArtistSongs = Rx<List<LocalSong>>([]);
-  Rx<LocalAlbum> currentAlbum = Rx<LocalAlbum>(new LocalAlbum());
+  Rx<LocalAlbum> currentAlbum = Rx<LocalAlbum>(LocalAlbum());
   Rx<List<LocalSong>> currentAlbumSongs = Rx<List<LocalSong>>([]);
   RxBool isPlaying = RxBool(false);
   RxBool isShuffle = RxBool(false);
@@ -50,7 +50,6 @@ class PlayerController extends GetxController {
   }
 
   init({bool retry = false}) async {
-
     // Check and request for permission.
     // The param 'retryRequest' is false, by default.
     _hasPermission = await _audioQuery.checkAndRequest(
@@ -60,7 +59,7 @@ class PlayerController extends GetxController {
     // Only call update the UI if application has all required permissions.
     // _hasPermission ? setState(() {}) : null;
 
-    if(_hasPermission){
+    if (_hasPermission) {
       isPlaying.bindStream(assetsAudioPlayer.isPlaying);
       isShuffle.bindStream(assetsAudioPlayer.isShuffling);
       currentPosition.bindStream(assetsAudioPlayer.currentPosition);
@@ -77,12 +76,12 @@ class PlayerController extends GetxController {
 
       playing.stream.listen((value) {
         print(value);
-        if (value?.songTitle != null) {
+        if (value.songTitle != null) {
           isCurrentLrcReady.value = false;
           isCurrentHasLrc.value = false;
           currentLrcString.value = "";
 
-          this.fetchCurrrentSongLrc(
+          fetchCurrrentSongLrc(
             artist: value.artistName,
             title: value.songTitle,
           );
@@ -104,9 +103,8 @@ class PlayerController extends GetxController {
         .get<LocalSongsService>()
         .getLocalSongsByArtist(artist.artistId!);
     try {
-      results = await this.getArtWorks(results);
+      results = await getArtWorks(results);
     } catch (e) {
-      print(e);
     } finally {
       currentArtistSongs.value = results;
     }
@@ -133,8 +131,10 @@ class PlayerController extends GetxController {
           .get<LocalSongsService>()
           .getLocalSongsByAlbum('${album.albumId}');
       try {
-        results = await this.getArtWorks(results);
-      } catch (e) {}
+        results = await getArtWorks(results);
+      } catch (e) {
+        print(e);
+      }
 
       currentAlbumSongs.value = results;
       print(currentAlbumSongs.value);
@@ -163,7 +163,7 @@ class PlayerController extends GetxController {
 
   playCurrentArtistSong() async {
     if (currentArtist != null) {
-      await this.stop();
+      await stop();
       await openSongs(currentArtistSongs.value);
       // assetsAudioPlayer.play();
     }
@@ -217,7 +217,7 @@ class PlayerController extends GetxController {
       results = await locator.get<LocalSongsService>().getLocalSongs();
 
       songs.value = results;
-      results = await this.getArtWorks(results);
+      results = await getArtWorks(results);
 
       // await openSongs(results);
       // await assetsAudioPlayer.stop();
@@ -251,7 +251,7 @@ class PlayerController extends GetxController {
                       : MetasImage.asset(
                           song.coverUrl ?? "assets/images/logo-circle.jpg",
                         ), //can be MetasImage.network
-                  onImageLoadFail: MetasImage.asset(
+                  onImageLoadFail: const MetasImage.asset(
                     "assets/images/logo-circle.jpg",
                   ),
                 ),
@@ -291,7 +291,7 @@ class PlayerController extends GetxController {
     } else {
       await assetsAudioPlayer.stop();
 
-      this.playing.value = song;
+      playing.value = song;
       int index = playList.value.indexOf(song);
       assetsAudioPlayer.playlistPlayAtIndex(index);
     }
@@ -316,24 +316,23 @@ class PlayerController extends GetxController {
     try {
       if (localCorrespondance != null) {
         print(localCorrespondance);
-        this.setCurrentLrc(
+        setCurrentLrc(
           local: true,
           localPath: localCorrespondance.localPath,
         );
       } else {
-        if(_lyricsService != null){
+        if (_lyricsService != null) {
           List<LrcModel> results = await _lyricsService!.searchLrc(
             artist: artist,
             title: title,
           );
           print(results);
           if (results.length == 1) {
-            this.setCurrentLrc(lrc: results.first);
+            setCurrentLrc(lrc: results.first);
           } else {
             isCurrentLrcReady.value = true;
           }
         }
-
       }
     } catch (e) {
       print(e);
@@ -342,15 +341,14 @@ class PlayerController extends GetxController {
 
   setCurrentLrc({LrcModel? lrc, bool local = false, String? localPath}) async {
     try {
+      print(lrc);
       if (local == false) {
-        var lrcString =
-            await this.fetchFile('${lrc?.translations?.first.lrcUrl}');
+        var lrcString = await fetchFile('${lrc?.translations?.first.lrcUrl}');
         currentLrcString.value = lrcString;
         isCurrentLrcReady.value = true;
         isCurrentHasLrc.value = true;
-        print(lrcString);
       } else {
-        var file = new File('${localPath}');
+        var file = File('${localPath}');
         currentLrcString.value = await file.readAsString();
         isCurrentLrcReady.value = true;
         isCurrentHasLrc.value = true;
@@ -362,22 +360,25 @@ class PlayerController extends GetxController {
     }
   }
 
-  SongLrc searchLocalLrc(String songId) {
-    final songLrcBox = Hive.box<SongLrc>('songlrcs');
+  SongLrc? searchLocalLrc(String songId) {
+    final songLrcBox = Hive.box<SongLrc?>('songlrcs');
     var allLrcsMap = songLrcBox
         .valuesBetween(startKey: 0, endKey: songLrcBox.length)
         .toList();
 
     return allLrcsMap.firstWhere(
-      (s) => s.localSongId == songId && s.localPath != null,
-      orElse: () => new SongLrc(),
+      (s) => s?.localSongId == songId && s?.localPath != null,
+      orElse: () => null,
     );
   }
 
-  void addLocalLrc(
-      {required String localSongId, required String localPath, String? alId}) {
+  void addLocalLrc({
+    required String localSongId,
+    required String localPath,
+    String? alId,
+  }) {
     final songLrcBox = Hive.box('songlrcs');
-    SongLrc s = new SongLrc(
+    SongLrc s = SongLrc(
       localSongId: localSongId,
       localPath: localPath,
       alMediaId: '$alId',

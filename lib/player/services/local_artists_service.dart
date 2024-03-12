@@ -5,7 +5,7 @@ import 'package:on_audio_query/on_audio_query.dart';
 class LocalArtistsService {
   OnAudioQuery? audioQuery;
   LocalArtistsService() {
-    this.audioQuery = OnAudioQuery();
+    audioQuery = OnAudioQuery();
   }
 
   Future<List<LocalArtist>> getLocalArtists() async {

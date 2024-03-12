@@ -27,7 +27,7 @@ class LyricCard extends StatelessWidget {
       child: GestureDetector(
         onTap: () {
           Get.to(
-            LyricDetails(lyric: lyric),
+            () => LyricDetails(lyric: lyric),
           );
         },
         child: Material(

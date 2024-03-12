@@ -42,7 +42,7 @@ class FavoriteLyrics extends GetView<FavoritesController> {
               FavoriteModel item = controller.favorites.value[index];
               return GestureDetector(
                 onTap: () {
-                  Get.to(LyricDetails(
+                  Get.to(() => LyricDetails(
                     lyric: LyricModel(idLyric: item.idLyric),
                   ));
                 },

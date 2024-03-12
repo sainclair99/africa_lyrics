@@ -87,7 +87,7 @@ class AppDrawer extends StatelessWidget {
                     ),
                   ),
                   onTap: () {
-                    Get.to(AboutUsScreen());
+                    Get.to(() => AboutUsScreen());
                   },
                 ),
                 Divider(),

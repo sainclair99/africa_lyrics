@@ -15,7 +15,7 @@ class ArtistCard extends StatelessWidget {
     return Container(
       child: GestureDetector(
         onTap: () {
-          Get.to(ArtistDetails(artist: artist));
+          Get.to(() => ArtistDetails(artist: artist));
         },
         child: Container(
           width: AppSizes.artistCardH,

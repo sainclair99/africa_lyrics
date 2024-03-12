@@ -55,8 +55,8 @@ class ArtistSongs extends GetView<PlayerController> {
                             } else {
                               controller.play(song: song, listSong: songs);
                             }
-                            Get.to(PlayingScreen());
-                            Get.to(LrcPage());
+                            Get.to(() => PlayingScreen());
+                            Get.to(() => LrcPage());
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(4.0),

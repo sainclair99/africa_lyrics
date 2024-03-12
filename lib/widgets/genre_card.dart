@@ -20,7 +20,7 @@ class GenreCard extends StatelessWidget {
     return Container(
       child: GestureDetector(
         onTap: () {
-          Get.to(LyricsByGenre(genre: genre));
+          Get.to(() => LyricsByGenre(genre: genre));
         },
         child: Container(
           //  height: AppSizes.artistCardHsm,
